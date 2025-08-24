@@ -59,7 +59,7 @@ export function LoginScreen() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <label htmlFor="code" className="text-sm font-medium">
-                รหัสพนักงาน
+                รหัสพนักงาน (PIN)
               </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -82,20 +82,6 @@ export function LoginScreen() {
             </Button>
           </form>
 
-          <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-            <p className="text-sm text-muted-foreground mb-2">รหัสทดสอบ:</p>
-            <div className="space-y-1 text-xs">
-              <div>
-                ผู้จัดการ: <code className="bg-background px-1 rounded">1234</code>
-              </div>
-              <div>
-                พนักงาน A: <code className="bg-background px-1 rounded">5678</code>
-              </div>
-              <div>
-                พนักงาน B: <code className="bg-background px-1 rounded">9999</code>
-              </div>
-            </div>
-          </div>
         </CardContent>
       </Card>
     </div>
