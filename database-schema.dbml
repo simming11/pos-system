@@ -1,0 +1,232 @@
+  // ...existing code...
+Table member {
+  id varchar(36) [pk]
+  memberCode varchar(20) [unique]
+  name varchar(100)
+  phone varchar(20) [unique]
+  email varchar(100) [unique, null]
+  points int
+  totalSpent float
+  joinDate date
+  lastVisit date [null]
+  is_active bool [default: true]
+  branch_id varchar(36) [null]
+  created_by varchar(36) [null]
+  updated_by varchar(36) [null]
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime [null]
+  Indexes {
+    phone
+    (branch_id, phone)
+    (branch_id, name)
+    (branch_id, email)
+    (branch_id, is_active)
+  }
+}
+
+// ...existing code...
+Table product {
+  id varchar(36) [pk]
+  name varchar(100)
+  price float
+  categoryId varchar(36)
+  image varchar(255) [null]
+  stock int
+  branch_id varchar(36) [null]
+  created_by varchar(36) [null]
+  updated_by varchar(36) [null]
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime [null]
+  Indexes {
+    name
+    (branch_id, name)
+    (categoryId, name)
+    (branch_id, stock)
+  }
+}
+
+// ...existing code...
+Table category {
+  id varchar(36) [pk]
+  name varchar(100) [unique]
+  description varchar(255) [null]
+  created_by varchar(36) [null]
+  updated_by varchar(36) [null]
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime [null]
+}
+
+// ...existing code...
+Table sale {
+  id varchar(36) [pk]
+  date date
+  subtotal float
+  discount float
+  tax float
+  tax_rate float [null]
+  total float
+  paymentMethod varchar(50)
+  memberId varchar(36) [null]
+  pointsEarned int [null]
+  pointsUsed int [null]
+  branch_id varchar(36) [null]
+  locale varchar(10) [null]
+  currency varchar(10) [null]
+  created_by varchar(36) [null]
+  updated_by varchar(36) [null]
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime [null]
+  Indexes {
+    date
+    (branch_id, date)
+    (memberId, date)
+    (branch_id, paymentMethod)
+    (branch_id, currency)
+  }
+}
+Table access_log {
+  id varchar(36) [pk]
+  user_id varchar(36)
+  table_name varchar(100)
+  record_id varchar(36) [null]
+  action varchar(20) // เช่น VIEW, EXPORT
+  accessed_at datetime
+  ip_address varchar(45) [null]
+  user_agent varchar(255) [null]
+}
+
+
+// ...existing code...
+Table sale_item {
+  id varchar(36) [pk]
+  saleId varchar(36)
+  productId varchar(36)
+  name varchar(100)
+  price float
+  quantity int
+  created_by varchar(36) [null]
+  updated_by varchar(36) [null]
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime [null]
+  Indexes {
+    saleId
+    productId
+    (saleId, productId)
+    (productId, price)
+  }
+}
+
+// ...existing code...
+Table payment {
+  id varchar(36) [pk]
+  saleId varchar(36)
+  amount float
+  method varchar(50)
+  paid_at datetime
+  created_by varchar(36) [null]
+  updated_by varchar(36) [null]
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime [null]
+  Indexes {
+    saleId
+    (method, paid_at)
+    (saleId, method)
+  }
+}
+
+Table user {
+  id varchar(36) [pk]
+  username varchar(50) [unique]
+  email varchar(100) [unique, null]
+  password_hash varchar(255)
+  salt varchar(255) [null]
+  name varchar(100)
+  roleId varchar(36)
+  is_active bool [default: true]
+  branch_id varchar(36) [null]
+  created_by varchar(36) [null]
+  updated_by varchar(36) [null]
+  created_at datetime
+  updated_at datetime
+  last_login datetime [null]
+  deleted_at datetime [null]
+}
+Table user_permission {
+  id varchar(36) [pk]
+  user_id varchar(36)
+  permission_id varchar(36)
+  created_at datetime
+  updated_at datetime
+}
+Ref: user.id < user_permission.user_id
+Ref: permission.id < user_permission.permission_id
+Table permission {
+  id varchar(36) [pk]
+  name varchar(50) [unique]
+  description varchar(255) [null]
+  created_at datetime
+  updated_at datetime
+}
+
+Table role_permission {
+  id varchar(36) [pk]
+  role_id varchar(36)
+  permission_id varchar(36)
+  created_at datetime
+  updated_at datetime
+}
+Ref: role.id < role_permission.role_id
+Ref: permission.id < role_permission.permission_id
+
+Table role {
+  id varchar(36) [pk]
+  name varchar(50) [unique]
+  description varchar(255) [null]
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime [null]
+}
+// ...existing code...
+Table branch {
+  id varchar(36) [pk]
+  name varchar(100) [unique]
+  address varchar(255) [null]
+  locale varchar(10) [null]
+  currency varchar(10) [null]
+  created_by varchar(36) [null]
+  updated_by varchar(36) [null]
+  created_at datetime
+  updated_at datetime
+  deleted_at datetime [null]
+}
+
+Table audit_log {
+  id varchar(36) [pk]
+  table_name varchar(100)
+  record_id varchar(36)
+  action varchar(20) // เช่น INSERT, UPDATE, DELETE
+  changed_fields varchar(255) [null] // ชื่อ field ที่ถูกเปลี่ยนแปลง (comma separated)
+  changed_from text [null] // ค่าก่อนหน้า (json หรือ string)
+  changed_to text [null] // ค่าใหม่ (json หรือ string)
+  old_data text [null]
+  new_data text [null]
+  user_id varchar(36) [null]
+  created_at datetime
+}
+
+Ref: member.id < sale.memberId
+Ref: sale.id < sale_item.saleId
+Ref: product.id < sale_item.productId
+Ref: category.id < product.categoryId
+Ref: sale.id < payment.saleId
+Ref: role.id < user.roleId
+Ref: branch.id < product.branch_id
+Ref: branch.id < sale.branch_id
+Ref: branch.id < user.branch_id
+Ref: branch.id < member.branch_id
