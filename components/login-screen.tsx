@@ -9,11 +9,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Package, Lock } from "lucide-react"
 import { useAuth } from "@/contexts/auth-context"
 
+
+
 export function LoginScreen() {
+
   const [code, setCode] = useState("")
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const { login } = useAuth()
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -33,8 +37,8 @@ export function LoginScreen() {
   }
 
   const handleCodeInput = (value: string) => {
-    // Only allow numbers and limit to 4 digits
-    const numericValue = value.replace(/\D/g, "").slice(0, 4)
+    // Only allow numbers and limit to 6 digits
+    const numericValue = value.replace(/\D/g, "").slice(0, 6)
     setCode(numericValue)
     setError("")
   }
@@ -55,43 +59,29 @@ export function LoginScreen() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <label htmlFor="code" className="text-sm font-medium">
-                รหัสพนักงาน
+                รหัสพนักงาน (PIN)
               </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="code"
                   type="password"
-                  placeholder="••••"
+                  placeholder="••••••"
                   value={code}
                   onChange={(e) => handleCodeInput(e.target.value)}
                   className="pl-10 text-center text-lg tracking-widest"
-                  maxLength={4}
+                  maxLength={6}
                   autoFocus
                 />
               </div>
               {error && <p className="text-sm text-destructive">{error}</p>}
             </div>
 
-            <Button type="submit" className="w-full" disabled={code.length !== 4 || isLoading}>
+            <Button type="submit" className="w-full" disabled={code.length !== 6 || isLoading}>
               {isLoading ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
             </Button>
           </form>
 
-          <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-            <p className="text-sm text-muted-foreground mb-2">รหัสทดสอบ:</p>
-            <div className="space-y-1 text-xs">
-              <div>
-                ผู้จัดการ: <code className="bg-background px-1 rounded">1234</code>
-              </div>
-              <div>
-                พนักงาน A: <code className="bg-background px-1 rounded">5678</code>
-              </div>
-              <div>
-                พนักงาน B: <code className="bg-background px-1 rounded">9999</code>
-              </div>
-            </div>
-          </div>
         </CardContent>
       </Card>
     </div>

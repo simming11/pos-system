@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 import { AuthProvider } from "@/contexts/auth-context"
+import { getUsers } from "@/lib/userService"
 import { SettingsProvider } from "@/contexts/settings-context"
 
 const geistSans = Geist({
@@ -21,16 +22,19 @@ export const metadata: Metadata = {
     generator: 'v0.app'
 }
 
-export default function RootLayout({
+
+// เปลี่ยนเป็น async function เพื่อโหลด users
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const users = await getUsers()
   return (
     <html lang="th">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <SettingsProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider users={users}>{children}</AuthProvider>
         </SettingsProvider>
       </body>
     </html>

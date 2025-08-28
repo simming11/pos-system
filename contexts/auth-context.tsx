@@ -18,44 +18,41 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-// Sample users with codes
-const users: User[] = [
-  {
-    id: "1",
-    name: "ผู้จัดการ",
-    role: "admin",
-    code: "1234",
-  },
-  {
-    id: "2",
-    name: "พนักงาน A",
-    role: "employee",
-    code: "5678",
-  },
-  {
-    id: "3",
-    name: "พนักงาน B",
-    role: "employee",
-    code: "9999",
-  },
-]
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
+
+// เพิ่ม prop users เพื่อรับ users จากภายนอก (API)
+export function AuthProvider({ children, users = [] }: { children: ReactNode, users?: any[] }) {
+  const [user, setUser] = useState<any | null>(null)
+  const [isAuthLoading, setIsAuthLoading] = useState(true)
 
   useEffect(() => {
     // Check if user is already logged in (from localStorage)
     const savedUser = localStorage.getItem("pos-user")
     if (savedUser) {
-      setUser(JSON.parse(savedUser))
+      try {
+        const { id } = JSON.parse(savedUser)
+        // map id กับ users ที่มาจาก API
+        const foundUser = users.find((u) => u.id === id)
+        if (foundUser) {
+          setUser((prev: any) => (prev && prev.id === foundUser.id ? prev : foundUser))
+        }
+      } catch {}
     }
-  }, [])
+    setIsAuthLoading(false)
+  }, [users])
 
+  // login ด้วย pin 6 หลัก (เพิ่มความปลอดภัย)
   const login = (code: string): boolean => {
-    const foundUser = users.find((u) => u.code === code)
+    if (!users || users.length === 0) return false
+    // normalize code: trim, only digits, length 6
+    const normalizedCode = (code || "").replace(/\D/g, "").slice(0, 6)
+    if (normalizedCode.length !== 6) return false
+    // ห้ามรับ pin ที่ไม่ใช่ string 6 หลัก
+    const foundUser = users.find((u) => typeof u.pin === "string" && u.pin.length === 6 && u.pin === normalizedCode)
     if (foundUser) {
       setUser(foundUser)
-      localStorage.setItem("pos-user", JSON.stringify(foundUser))
+        // เก็บเฉพาะ id ใน localStorage
+        localStorage.setItem("pos-user", JSON.stringify({ id: foundUser.id }))
       return true
     }
     return false
@@ -68,6 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const isAuthenticated = !!user
 
+  if (isAuthLoading) return null
   return <AuthContext.Provider value={{ user, login, logout, isAuthenticated }}>{children}</AuthContext.Provider>
 }
 
