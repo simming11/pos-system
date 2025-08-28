@@ -27,7 +27,8 @@ export function LoginScreen() {
     // Simulate loading delay
     await new Promise((resolve) => setTimeout(resolve, 500))
 
-    const success = login(code)
+
+    const success = await login(code)
     if (!success) {
       setError("รหัสไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง")
       setCode("")

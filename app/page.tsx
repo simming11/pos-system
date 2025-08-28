@@ -50,11 +50,22 @@ export interface Sale {
   timestamp: Date
 }
 
+
+// Extend User type to include roleName and roleDescription for context user
+interface UserWithRole {
+  id: string
+  name: string
+  role: string
+  code?: string
+  roleName?: string
+  roleDescription?: string
+}
 // initialProducts removed — products will be loaded from the API on mount
 
 export default function POSSystem() {
-  const { user, logout, isAuthenticated } = useAuth()
+  const { user, logout, isAuthenticated } = useAuth() as { user: UserWithRole | null, logout: () => void, isAuthenticated: boolean }
   const { storeSettings, addSalesTransaction, updateMemberPoints } = useSettings()
+
 
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [showReceipt, setShowReceipt] = useState(false)
@@ -208,7 +219,7 @@ export default function POSSystem() {
               <User className="h-4 w-4" />
               <span>{user?.name}</span>
               <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
-                {user?.role === "admin" ? "ผู้จัดการ" : "พนักงาน"}
+                {user?.roleName ? user.roleName : "-"}
               </span>
             </div>
 
@@ -221,7 +232,7 @@ export default function POSSystem() {
                 <CartIcon className="h-4 w-4" />
                 Point of Sale
               </Button>
-              {user?.role === "admin" && (
+              {user?.roleName === "Admin" && (
                 <>
                   <Button
                     variant={activeTab === "products" ? "default" : "outline"}
@@ -268,7 +279,7 @@ export default function POSSystem() {
           </div>
         ) : activeTab === "products" ? (
           <div>
-            {user?.role === "admin" ? (
+            {user?.roleName === "Admin" ? (
               <ProductManagement products={products} onProductsChange={setProducts} />
             ) : (
               <div className="text-center py-8">
@@ -278,7 +289,7 @@ export default function POSSystem() {
           </div>
         ) : (
           <div>
-            {user?.role === "admin" ? (
+            {user?.roleName === "Admin" ? (
               <AdminSettings />
             ) : (
               <div className="text-center py-8">
